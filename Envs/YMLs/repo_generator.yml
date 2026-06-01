@@ -1,0 +1,9 @@
+name: repo_generator
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - requests

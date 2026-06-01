@@ -1,0 +1,22 @@
+name: Update Env Micromamba Local
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-env:
+    runs-on: self-hosted
+
+    steps:
+      - name: Download changes of repo
+        uses: actions/checkout@v4
+
+      - name: Update package in Micromamba local
+        run: |
+          export MAMBA_EXE="$HOME/.local/bin/micromamba"
+          eval "$($MAMBA_EXE shell hook --shell bash)"
+          
+          micromamba activate repo_generator
+          pip install -e .
