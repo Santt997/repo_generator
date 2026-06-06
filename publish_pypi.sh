@@ -34,7 +34,7 @@ else
         PYTHON_BIN="$MAMBA_PYPI_BIN"
     else
         echo -e "${RED}Error: The micromamba env 'pypi' does not exist.${NC}"
-        echo -e "${YELLOW}Please create it first by running:${NC}"
+        echo -e "${YELLOW}Please create it 1º by running:${NC}"
         echo -e "  micromamba create -n pypi python=3.11 -y"
         exit 1
     fi
