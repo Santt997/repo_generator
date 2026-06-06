@@ -40,7 +40,7 @@ list:
 	pip list
 
 clean:
-	@echo "Nothing to clean"
+	@echo "Nothing 2clean"
 
 deep-clean:
 	-micromamba env remove -n $(ENV_NAME) -y
