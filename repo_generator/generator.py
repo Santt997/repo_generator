@@ -9,65 +9,64 @@ import sys
 import subprocess
 from pathlib import Path
 
-# Common imports to PyPI packages mapping
-PYPI_MAPPING = {
-    "PIL": "Pillow",
-    "Image": "Pillow",
-    "yaml": "PyYAML",
-    "bs4": "beautifulsoup4",
-    "sklearn": "scikit-learn",
-    "cv2": "opencv-python",
-    "surya": "surya-ocr",
-    "torch": "torch",
-    "torchvision": "torchvision",
-    "numpy": "numpy",
-    "requests": "requests",
-    "pandas": "pandas",
-    "matplotlib": "matplotlib",
-    "scipy": "scipy",
-    "jinja2": "Jinja2",
-    "click": "click",
-    "pytest": "pytest",
-    "fastapi": "fastapi",
-    "uvicorn": "uvicorn",
+# Common imports 2PyPI packages mapping
+PYPI_MAPPING : dict[str, str] = {
+    'PIL': 'Pillow',
+    'Image': 'Pillow',
+    'yaml': 'PyYAML',
+    'bs4': 'beautifulsoup4',
+    'sklearn': 'scikit-learn',
+    'cv2': 'opencv-python',
+    'surya': 'surya-ocr',
+    'torch': 'torch',
+    'torchvision': 'torchvision',
+    'numpy': 'numpy',
+    'requests': 'requests',
+    'pandas': 'pandas',
+    'matplotlib': 'matplotlib',
+    'scipy': 'scipy',
+    'jinja2': 'Jinja2',
+    'click': 'click',
+    'pytest': 'pytest',
+    'fastapi': 'fastapi',
+    'uvicorn': 'uvicorn',
 }
 
-# Standard python standard library modules (for filtering)
-STD_LIBS = set()
+# Std python std library modules (4filtering)
 if sys.version_info >= (3, 10):
     STD_LIBS = sys.stdlib_module_names
 else:
-    # Fallback list for older Python versions
-    STD_LIBS = {
-        "abc", "argparse", "ast", "asyncio", "base64", "collections", "contextlib",
-        "csv", "datetime", "decimal", "enum", "fnmatch", "functools", "glob",
-        "hashlib", "html", "http", "importlib", "inspect", "io", "json", "logging",
-        "math", "multiprocessing", "os", "pathlib", "pickle", "pprint", "queue",
-        "random", "re", "select", "shutil", "signal", "socket", "sqlite3", "ssl",
-        "string", "subprocess", "sys", "tempfile", "threading", "time", "traceback",
-        "types", "typing", "unittest", "urllib", "uuid", "warnings", "weakref", "xml"
+    # Fallback list 4older Python versions
+    STD_LIBS : set[str] = {
+        'abc', 'argparse', 'ast', 'asyncio', 'base64', 'collections', 'contextlib',
+        'csv', 'datetime', 'decimal', 'enum', 'fnmatch', 'functools', 'glob',
+        'hashlib', 'html', 'http', 'importlib', 'inspect', 'io', 'json', 'logging',
+        'math', 'multiprocessing', 'os', 'pathlib', 'pickle', 'pprint', 'queue',
+        'random', 're', 'select', 'shutil', 'signal', 'socket', 'sqlite3', 'ssl',
+        'string', 'subprocess', 'sys', 'tempfile', 'threading', 'time', 'traceback',
+        'types', 'typing', 'unittest', 'urllib', 'uuid', 'warnings', 'weakref', 'xml'
     }
 
 
 def parse_dependencies_and_entrypoint(source_dir: Path) -> tuple[set[str], str | None]:
-    """
+    '''
     Parses all python files in source_dir using AST to extract external dependencies
     and find the file containing the __main__ entrypoint block.
-    """
-    dependencies = set()
+    '''
+    dependencies : set[str] = set()
     entry_file = None
-    py_files = sorted(source_dir.glob("*.py"))
+    py_files = sorted(source_dir.glob('*.py'))
 
     for py_file in py_files:
         try:
-            content = py_file.read_text(encoding="utf-8")
+            content = py_file.read_text(encoding='utf-8')
             tree = ast.parse(content)
             
-            # Check for __main__ block
-            # looking for: if __name__ == '__main__':
+            # Check 4__main__ block
+            # looking 4: if __name__ == '__main__':
             for node in ast.walk(tree):
                 if isinstance(node, ast.If):
-                    # Check if test condition is: name == '__main__'
+                    # Check if test cond is: name == '__main__'
                     if isinstance(node.test, ast.Compare):
                         left = node.test.left
                         if isinstance(left, ast.Name) and left.id == "__name__":
@@ -75,36 +74,36 @@ def parse_dependencies_and_entrypoint(source_dir: Path) -> tuple[set[str], str |
                                 if isinstance(op, ast.Eq) and isinstance(comparator, ast.Constant) and comparator.value == "__main__":
                                     entry_file = py_file.name
                                 elif isinstance(op, ast.Eq) and isinstance(comparator, ast.Str) and comparator.s == "__main__":
-                                    # Fallback for python < 3.8
+                                    # Fallback 4python < 3.8
                                     entry_file = py_file.name
 
             # Extract imports
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        base_module = alias.name.split(".")[0]
+                        base_module = alias.name.split('.')[0]
                         if base_module not in STD_LIBS:
                             dependencies.add(base_module)
                 elif isinstance(node, ast.ImportFrom):
                     if node.level == 0 and node.module:  # Absolute import
-                        base_module = node.module.split(".")[0]
+                        base_module = node.module.split('.')[0]
                         if base_module not in STD_LIBS:
                             dependencies.add(base_module)
         except Exception as e:
-            print(f"Warning: Failed to parse {py_file.name} for imports/entrypoint: {e}")
+            print(f'Warning: Failed 2parse {py_file.name} 4imports/entrypoint: {e}')
 
-    # Map imports to standard PyPI distribution names
-    pypi_deps = set()
+    # Map imports to std PyPI distr names
+    pypi_deps : set[str] = set()
     for dep in dependencies:
         pypi_deps.add(PYPI_MAPPING.get(dep, dep))
 
-    # If no entry file is found but we have py files, choose the alphabetical first or main.py / _.py if it exists
+    # If no entry file is found but we have py files, choose the alphabetical first | main.py / _.py if it exists
     if not entry_file and py_files:
         file_names = [f.name for f in py_files]
-        if "_.py" in file_names:
-            entry_file = "_.py"
-        elif "main.py" in file_names:
-            entry_file = "main.py"
+        if '_.py' in file_names:
+            entry_file = '_.py'
+        elif 'main.py' in file_names:
+            entry_file = 'main.py'
         else:
             entry_file = file_names[0]
 
@@ -112,7 +111,7 @@ def parse_dependencies_and_entrypoint(source_dir: Path) -> tuple[set[str], str |
 
 
 def get_fallback_gitignore() -> str:
-    return """# Byte-compiled / optimized / DLL files
+    return '''# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -120,7 +119,7 @@ __pycache__/
 # C extensions
 *.so
 
-# Distribution / packaging
+# Distr / packaging
 .Python
 build/
 develop-eggs/
@@ -140,7 +139,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Environments
+# Envs
 .env
 .envrc
 .venv
@@ -150,115 +149,115 @@ ENV/
 env.bak/
 venv.bak/
 
-# VS Code and JetBrains
+# VS Code & JetBrains
 .vscode/
 .idea/
-"""
+'''
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Premium Python Automation Tool: Package any Python folder as a standard local/cloud GitHub repo & publish to PyPI."
+    parser : argparse.ArgumentParser = argparse.ArgumentParser(
+        description='Premium Python Automation Tool: Package any Python folder as a std local/cloud GitHub repo & publish to PyPI.'
     )
     parser.add_argument(
-        "source_dir",
+        'source_dir',
         type=str,
-        help="Path to the directory containing the .py files to package"
+        help='Path 2the directory containing the .py files 2package'
     )
     parser.add_argument(
-        "-n", "--name",
-        type=str,
-        default=None,
-        help="Custom package / repository name (defaults to the source directory name)"
-    )
-    parser.add_argument(
-        "-v", "--version",
-        type=str,
-        default="0.1.0",
-        help="Initial package version (default: 0.1.0)"
-    )
-    parser.add_argument(
-        "-d", "--description",
+        '-n', '--name',
         type=str,
         default=None,
-        help="Package description (defaults to folder-based description)"
+        help='Custom package / repo name (defaults 2the src directory name)'
     )
     parser.add_argument(
-        "-o", "--output",
+        '-v', '--version',
+        type=str,
+        default='0.1.0',
+        help='Initial package version (default: 0.1.0)'
+    )
+    parser.add_argument(
+        '-d', '--description',
         type=str,
         default=None,
-        help="Output folder where the new repository will be created (defaults to ./generated_repos/<name>)"
+        help='Package description (defaults 2folder-based description)'
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Only generate the files locally; skip git init, gh repo create, and publish_pypi.sh"
+        '-o', '--output',
+        type=str,
+        default=None,
+        help='Output folder where the new repo will be created (defaults 2./generated_repos/<name>)'
     )
     parser.add_argument(
-        "--skip-publish",
-        action="store_true",
-        help="Generate local files, init Git, and create GitHub repo, but skip running publish_pypi.sh"
+        '--dry-run',
+        action='store_true',
+        help='Only generate the files locally; skip git init, gh repo create, & publish_pypi.sh'
     )
     parser.add_argument(
-        "--private",
-        action="store_true",
-        help="Create the GitHub cloud repository as private (default is public)"
+        '--skip-publish',
+        action='store_true',
+        help='Generate local files, init Git, & create GitHub repo, but skip running publish_pypi.sh'
+    )
+    parser.add_argument(
+        '--private',
+        action='store_true',
+        help='Create the GitHub cloud repo as private (default is public)'
     )
 
     args = parser.parse_args()
 
-    # Resolve source directory
+    # Resolve src directory
     source_path = Path(args.source_dir).resolve()
     if not source_path.is_dir():
-        print(f"Error: Source directory does not exist: {source_path}")
+        print(f'Error: Src directory does not exist: {source_path}')
         sys.exit(1)
 
     # Resolve package name from folder
     package_name = args.name or source_path.name
-    # Standardize package name: swap spaces with hyphens, lowercase
-    package_name = package_name.strip().replace(" ", "-").lower()
+    # Standardize package name: swap spaces w hyphens, lowercase
+    package_name : str = package_name.strip().replace(' ', '-').lower()
     
     # Description default
-    description = args.description or f"cast from {package_name} source to pypi"
+    description = args.description or f'cast from {package_name} src 2pypi'
 
-    print(f"============================================================")
-    print(f"🚀 Initializing Repository & Package Generation")
-    print(f"   - Package Name:  {package_name}")
-    print(f"   - Version:       {args.version}")
-    print(f"   - Source Folder: {source_path}")
-    print(f"============================================================")
+    print(f'============================================================')
+    print(f'🚀 Initializing Repo & Package Generation')
+    print(f'   - Package Name:  {package_name}')
+    print(f'   - Version:       {args.version}')
+    print(f'   - Src Folder: {source_path}')
+    print(f'============================================================')
 
     # Resolve output directory
     if args.output:
         out_path = Path(args.output).resolve()
     else:
-        # Default to a generated_repos subfolder at the workspace root
-        # Find workspace root or current dir
+        # Default 2a generated_repos subFolder at the workSpace root
+        # Find workSpace root | currDir
         current_dir = Path.cwd()
-        out_path = current_dir / "generated_repos" / package_name
+        out_path = current_dir / 'generated_repos' / package_name
 
     # Check if output directory already exists
     if out_path.exists():
-        print(f"Warning: Output folder already exists: {out_path}")
-        confirm = input("Overwrite entire directory? (y/N): ").strip().lower()
+        print(f'Warning: Output folder already exists: {out_path}')
+        confirm : str = input('Overwrite entire directory? (y/N): ').strip().lower()
         if confirm != 'y':
-            print("Canceled.")
+            print('Canceled.')
             sys.exit(0)
         shutil.rmtree(out_path)
 
-    # 1. AST scan to find external dependencies and entrypoint
-    print("\n🔍 Scanning python files for dependencies and main entry point...")
+    # 1. AST scan 2find external dependencies & entrypoint
+    print('\n🔍 Scanning python files for dependencies & main entry point...')
     dependencies, entry_file = parse_dependencies_and_entrypoint(source_path)
     print(f"   Detected dependencies: {sorted(list(dependencies)) if dependencies else 'None'}")
     print(f"   Detected entrypoint:   {entry_file or 'None'}")
 
-    # Create directory structure
+    # Create directory struct
     out_path.mkdir(parents=True, exist_ok=True)
     pkg_subfolder = out_path / package_name
     pkg_subfolder.mkdir(parents=True, exist_ok=True)
 
-    # Copy all files from source_dir to the pkg_subfolder
-    print(f"\n📂 Copying source python files to {pkg_subfolder}...")
+    # Copy all files from src_dir to the pkg_subfolder
+    print(f'\n📂 Copying src python files 2{pkg_subfolder}...')
     for item in source_path.iterdir():
         # Avoid copying output directory recursively if running on itself
         if item.resolve() == out_path.resolve():
@@ -268,16 +267,16 @@ def main():
         elif item.is_dir() and item.name not in [".git", "build", "dist", "generated_repos"]:
             shutil.copytree(item, pkg_subfolder / item.name, symlinks=True, ignore=shutil.ignore_patterns(".git", "build", "dist"))
 
-    # Create empty __init__.py and py.typed if not exists
-    (pkg_subfolder / "__init__.py").touch(exist_ok=True)
-    (pkg_subfolder / "py.typed").touch(exist_ok=True)
+    # Create empty __init__.py & py.typed if not exists
+    (pkg_subfolder / '__init__.py').touch(exist_ok=True)
+    (pkg_subfolder / 'py.typed').touch(exist_ok=True)
 
     # 2. Generate CONFIGURATION FILES from templates
     print("\n✨ Generating repository configuration files...")
 
     # A. pyproject.toml
-    deps_list = ",\n    ".join([f'"{d}"' for d in sorted(list(dependencies))])
-    pyproject_content = f"""[build-system]
+    deps_list = ',\n    '.join([f'"{d}"' for d in sorted(list(dependencies))])
+    pyproject_content: str = f'''[build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
@@ -293,19 +292,19 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["{package_name}"]
-"""
-    (out_path / "pyproject.toml").write_text(pyproject_content, encoding="utf-8")
+'''
+    (out_path / 'pyproject.toml').write_text(pyproject_content, encoding='utf-8')
 
     # B. .gitignore
-    # Try to copy gitignore from current workspace, fallback to template
-    current_gitignore = Path.cwd() / ".gitignore"
+    # Try 2copy gitignore from current workspace, fallback 2template
+    current_gitignore = Path.cwd() / '.gitignore'
     if current_gitignore.is_file():
-        shutil.copy2(current_gitignore, out_path / ".gitignore")
+        shutil.copy2(current_gitignore, out_path / '.gitignore')
     else:
-        (out_path / ".gitignore").write_text(get_fallback_gitignore(), encoding="utf-8")
+        (out_path / '.gitignore').write_text(get_fallback_gitignore(), encoding='utf-8')
 
     # C. README.md
-    readme_content = f"""# {package_name}
+    readme_content = f'''# {package_name}
 
 {description}
 
@@ -323,11 +322,11 @@ cd Envs/MkFs
 make create
 make run
 ```
-"""
-    (out_path / "README.md").write_text(readme_content, encoding="utf-8")
+'''
+    (out_path / 'README.md').write_text(readme_content, encoding='utf-8')
 
     # D. publish_pypi.sh
-    publish_sh_content = f"""#!/usr/bin/env bash
+    publish_sh_content = f'''#!/usr/bin/env bash
 
 # Exit immediately if a cmd exits w a non-zero status
 set -e
@@ -430,18 +429,18 @@ case $option in
 esac
 
 echo -e "\\n${{BLUE}}Done!${{NC}}"
-"""
-    (out_path / "publish_pypi.sh").write_text(publish_sh_content, encoding="utf-8")
+'''
+    (out_path / 'publish_pypi.sh').write_text(publish_sh_content, encoding='utf-8')
     # Make executable
     try:
-        os.chmod(out_path / "publish_pypi.sh", 0o755)
+        os.chmod(out_path / 'publish_pypi.sh', 0o755)
     except Exception as e:
-        print(f"Warning: Failed to set executable permissions on publish_pypi.sh: {e}")
+        print(f'Warning: Failed 2set executable permissions on publish_pypi.sh: {e}')
 
     # E. .github/workflows/update_mamba.yml
-    workflow_path = out_path / ".github" / "workflows"
+    workflow_path = out_path / '.github' / 'workflows'
     workflow_path.mkdir(parents=True, exist_ok=True)
-    workflow_content = f"""name: Update Env Micromamba Local
+    workflow_content : str = f'''name: Update Env Micromamba Local
 
 on:
   push:
@@ -463,18 +462,18 @@ jobs:
           
           micromamba activate {package_name}
           pip install -e .
-"""
-    (workflow_path / "update_mamba.yml").write_text(workflow_content, encoding="utf-8")
+'''
+    (workflow_path / 'update_mamba.yml').write_text(workflow_content, encoding='utf-8')
 
     # F. Envs/YMLs/<package_name>.yml
-    envs_yml_path = out_path / "Envs" / "YMLs"
+    envs_yml_path = out_path / 'Envs' / 'YMLs'
     envs_yml_path.mkdir(parents=True, exist_ok=True)
     
-    yml_deps = "\n  - ".join(sorted(list(dependencies))) if dependencies else ""
+    yml_deps : str = '\n  - '.join(sorted(list(dependencies))) if dependencies else ''
     if yml_deps:
-        yml_deps = "\n  - " + yml_deps
+        yml_deps = '\n  - ' + yml_deps
         
-    yml_content = f"""name: {package_name}
+    yml_content : str = f'''name: {package_name}
 channels:
   - conda-forge
 
@@ -483,16 +482,16 @@ dependencies:
   - pip
   - numpy
   - requests{yml_deps}
-"""
-    (envs_yml_path / f"{package_name}.yml").write_text(yml_content, encoding="utf-8")
+'''
+    (envs_yml_path / f'{package_name}.yml').write_text(yml_content, encoding='utf-8')
 
     # G. Envs/MkFs/Makefile
-    envs_mk_path = out_path / "Envs" / "MkFs"
+    envs_mk_path = out_path / 'Envs' / 'MkFs'
     envs_mk_path.mkdir(parents=True, exist_ok=True)
     
-    entry_run_cmd = f"python ../../{package_name}/{entry_file} \"$(TARGET)\"" if entry_file else "python -m " + package_name
+    entry_run_cmd : str = f'python ../../{package_name}/{entry_file} \"$(TARGET)\"' if entry_file else 'python -m ' + package_name
     
-    makefile_content = f"""SHELL := /bin/bash
+    makefile_content : str = f'''SHELL := /bin/bash
 
 ENV_NAME := {package_name}
 YML_FILE := ../YMLs/$(ENV_NAME).yml
@@ -539,11 +538,11 @@ clean:
 deep-clean:
 	-micromamba env remove -n $(ENV_NAME) -y
 	@micromamba clean --all -y
-"""
-    (envs_mk_path / "Makefile").write_text(makefile_content, encoding="utf-8")
+'''
+    (envs_mk_path / 'Makefile').write_text(makefile_content, encoding='utf-8')
 
     # H. Code workspace
-    workspace_content = f"""{{
+    workspace_content = f'''{{
 	"folders": [
 		{{
 			"path": ".."
@@ -551,37 +550,37 @@ deep-clean:
 	],
 	"settings": {{}}
 }}
-"""
-    (pkg_subfolder / f"{package_name}.code-workspace").write_text(workspace_content, encoding="utf-8")
+'''
+    (pkg_subfolder / f'{package_name}.code-workspace').write_text(workspace_content, encoding='utf-8')
 
-    print(f"🎉 Successfully generated all template files in: {out_path}")
+    print(f'🎉 Successfully generated all template files in: {out_path}')
 
     if args.dry_run:
-        print("\n⚠️ Dry-run enabled. Skipping Git, GitHub, and PyPI publishing.")
-        print("Done!")
+        print(f'\n⚠️ Dry-run enabled. Skipping Git, GitHub, and PyPI publishing.')
+        print(f'Done!')
         sys.exit(0)
 
-    # 3. Initialize Git Repository
-    print("\n🐙 Initializing Git Repository...")
+    # 3. Initialize Git Repo
+    print('\n🐙 Initializing Git Repo...')
     try:
-        subprocess.run(["git", "init"], cwd=out_path, check=True)
-        # Configure branch name to main
-        subprocess.run(["git", "checkout", "-b", "main"], cwd=out_path, check=True)
-        subprocess.run(["git", "add", "."], cwd=out_path, check=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit by repo-generator"], cwd=out_path, check=True)
-        print("🐙 Git repository initialized and first commit created.")
+        subprocess.run(['git', 'init'], cwd=out_path, check=True)
+        # Configure branch name 2main
+        subprocess.run(['git', 'checkout', '-b', 'main'], cwd=out_path, check=True)
+        subprocess.run(['git', 'add', '.'], cwd=out_path, check=True)
+        subprocess.run(['git', 'commit', '-m', 'Initial commit by repo-generator'], cwd=out_path, check=True)
+        print('🐙 Git repo initialized and first commit created.')
     except Exception as e:
-        print(f"Error: Git repository initialization failed: {e}")
+        print(f'Error: Git repo initialization failed: {e}')
         sys.exit(1)
 
-    # 4. Create Cloud GitHub Repository
-    print("\n☁️ Creating cloud GitHub repository using 'gh' CLI...")
-    visibility_flag = "--private" if args.private else "--public"
+    # 4. Create Cloud GitHub Repo
+    print('\n☁️ Creating cloud GitHub repo using 'gh' CLI...')
+    visibility_flag = '--private' if args.private else '--public'
     
     # Detect the authenticated GitHub user
-    owner = "Santt997"
+    owner = 'Santt997'
     try:
-        user_res = subprocess.run(["gh", "api", "user", "--jq", ".login"], capture_output=True, text=True, cwd=out_path)
+        user_res = subprocess.run(['gh', 'api', 'user', '--jq', '.login'], capture_output=True, text=True, cwd=out_path)
         if user_res.returncode == 0 and user_res.stdout.strip():
             owner = user_res.stdout.strip()
     except Exception:
@@ -590,10 +589,10 @@ deep-clean:
     # Check if repo already exists on GitHub
     repo_exists = False
     try:
-        check_res = subprocess.run(["gh", "repo", "view", f"{owner}/{package_name}"], capture_output=True, cwd=out_path)
+        check_res = subprocess.run(['gh', 'repo', 'view', f'{owner}/{package_name}'], capture_output=True, cwd=out_path)
         if check_res.returncode == 0:
             repo_exists = True
-            print(f"☁️ Remote repository '{owner}/{package_name}' already exists on GitHub.")
+            print(f'☁️ Remote repo '{owner}/{package_name}' already exists on GitHub.')
     except Exception:
         pass
 
@@ -601,52 +600,52 @@ deep-clean:
         try:
             # Create EMPTY remote repo (no --source, no --push) to avoid auto-push
             subprocess.run(
-                ["gh", "repo", "create", package_name, visibility_flag],
+                ['gh', 'repo', 'create', package_name, visibility_flag],
                 cwd=out_path,
                 check=True
             )
-            print(f"☁️ Remote repository '{package_name}' successfully created on GitHub.")
+            print(f'☁️ Remote repo '{package_name}' successfully created on GitHub.')
         except Exception as e:
-            print(f"Error: GitHub repository creation failed: {e}")
-            print("Make sure you are logged in using 'gh auth login' or have internet connection.")
+            print(f'Error: GitHub repo creation failed: {e}')
+            print("Make sure you are logged in using 'gh auth login' | have internet connection.")
             sys.exit(1)
 
     # Add remote origin manually
     remote_url = f"https://github.com/{owner}/{package_name}.git"
-    subprocess.run(["git", "remote", "remove", "origin"], cwd=out_path, capture_output=True)  # remove if exists
-    subprocess.run(["git", "remote", "add", "origin", remote_url], cwd=out_path, check=True)
-    print(f"☁️ Remote set to: {remote_url}")
+    subprocess.run(['git', 'remote', 'remove', 'origin'], cwd=out_path, capture_output=True)  # remove if exists
+    subprocess.run(['git', 'remote', 'add', 'origin', remote_url], cwd=out_path, check=True)
+    print(f'☁️ Remote set 2: {remote_url}')
 
-    # Try to push to remote
-    print("☁️ Pushing local commits to GitHub...")
-    push_result = subprocess.run(["git", "push", "-u", "origin", "main"], cwd=out_path, capture_output=True, text=True)
+    # Try 2push 2remote
+    print('☁️ Pushing local commits 2GitHub...')
+    push_result = subprocess.run(['git', 'push', '-u', 'origin', 'main'], cwd=out_path, capture_output=True, text=True)
 
     if push_result.returncode == 0:
-        print(f"☁️ Cloud GitHub repository '{package_name}' successfully pushed!")
+        print(f"☁️ Cloud GitHub repo '{package_name}' successfully pushed!")
     else:
         push_stderr = push_result.stderr or ""
         # Check if it failed because of workflow scope limitation
-        if "workflow" in push_stderr.lower():
+        if 'workflow' in push_stderr.lower():
             print("\n⚠️ Push rejected due to missing 'workflow' scope on GitHub token.")
-            print("💡 Retrying push without workflow files...")
+            print('💡 Retrying push !w workflow files...')
 
             # 1. Back up .github directory
-            workflow_dir = out_path / ".github"
-            backup_dir = out_path / ".github_backup"
+            workflow_dir = out_path / '.github'
+            backup_dir = out_path / '.github_backup'
             if backup_dir.exists():
                 shutil.rmtree(backup_dir)
             shutil.move(workflow_dir, backup_dir)
 
             try:
-                # 2. Remove .github from the commit
-                subprocess.run(["git", "rm", "-rf", "--cached", ".github"], cwd=out_path, capture_output=True)
-                subprocess.run(["git", "commit", "--amend", "-m", "Initial commit by repo-generator"], cwd=out_path, check=True)
+                # 2. Rm .github from the commit
+                subprocess.run(['git', 'rm', '-rf', '--cached', '.github'], cwd=out_path, capture_output=True)
+                subprocess.run(['git', 'commit', '--amend', '-m', 'Initial commit by repo-generator'], cwd=out_path, check=True)
 
                 # 3. Retry push
-                subprocess.run(["git", "push", "-u", "origin", "main"], cwd=out_path, check=True)
-                print("☁️ Repository code successfully pushed to GitHub (without workflows)!")
+                subprocess.run(['git', 'push', '-u', 'origin', 'main'], cwd=out_path, check=True)
+                print('☁️ Repo code successfully pushed 2GitHub (!w workflows)!')
             except Exception as retry_err:
-                print(f"Error: Retried push also failed: {retry_err}")
+                print(f'Error: Retried push also failed: {retry_err}')
                 # Restore .github before exiting
                 shutil.move(backup_dir, workflow_dir)
                 sys.exit(1)
@@ -654,37 +653,37 @@ deep-clean:
             # 4. Restore .github directory locally
             shutil.move(backup_dir, workflow_dir)
 
-            print("\n" + "="*80)
-            print("⚠️  IMPORTANT: GITHUB ACTIONS WORKFLOWS NOT PUSHED")
+            print('\n' + '='*80)
+            print('⚠️  IMPORTANT: GITHUB ACTIONS WORKFLOWS NOT PUSHED')
             print("Your GitHub token does not have the 'workflow' scope.")
-            print("All code was pushed successfully, but workflow files remain local only.")
-            print("To push them later, run in your terminal:")
-            print("  1. gh auth refresh -s workflow")
-            print(f"  2. cd {out_path}")
-            print("  3. git add .github/")
-            print("  4. git commit -m \"Add GitHub Actions workflows\"")
-            print("  5. git push")
-            print("="*80 + "\n")
+            print('All code was pushed successfully, but workflow files remain local only.')
+            print('To push them later, run in your terminal:')
+            print('  1. gh auth refresh -s workflow')
+            print(f'  2. cd {out_path}')
+            print('  3. git add .github/')
+            print('  4. git commit -m \"Add GitHub Actions workflows\"')
+            print('  5. git push')
+            print('='*80 + '\n')
         else:
             print(f"Error: Git push failed:\n{push_stderr}")
             sys.exit(1)
 
     if args.skip_publish:
-        print("\n⚠️ Skipping publishing to PyPI as requested.")
-        print("Done!")
+        print('\n⚠️ Skipping publishing to PyPI as requested.')
+        print('Done!')
         sys.exit(0)
 
     # 5. Execute publish_pypi.sh immediately
-    print("\n📦 Launching PyPI Release Assistant...")
+    print('\n📦 Launching PyPI Release Assistant...')
     try:
         # Run bash publish_pypi.sh interactively (sharing stdin/stdout)
-        subprocess.run(["bash", "publish_pypi.sh"], cwd=out_path, check=True)
+        subprocess.run(['bash', 'publish_pypi.sh'], cwd=out_path, check=True)
     except Exception as e:
-        print(f"Error during package publishing execution: {e}")
+        print(f'Error during package publishing execution: {e}')
         sys.exit(1)
 
-    print("\n💎 Perfect! All operations finished successfully.")
+    print('\n💎 Perfect! All operations finished successfully.')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
