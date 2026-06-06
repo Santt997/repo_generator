@@ -66,7 +66,7 @@ echo -e "${GREEN}Twine checks passed! Package is structurally valid.${NC}"
 
 # 6. Publish section
 echo -e "\n${YELLOW}===============================================${NC}"
-echo -e "${YELLOW}           Ready to Publish to PyPI!            ${NC}"
+echo -e "${YELLOW}           Ready to Publish 2PyPI!            ${NC}"
 echo -e "${YELLOW}===============================================${NC}"
 echo -e "To upload, you will need your PyPI API Token."
 echo -e "  - Username: ${GREEN}__token__${NC}"
