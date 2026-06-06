@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-# Distribution / packaging
+# Distr / packaging
 .Python
 build/
 develop-eggs/
@@ -147,7 +147,7 @@ activemq-data/
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Envs
 .env
 .envrc
 .venv
@@ -206,7 +206,7 @@ tempCodeRunnerFile.py
 # Ruff stuff:
 .ruff_cache/
 
-# PyPI configuration file
+# PyPI config file
 .pypirc
 
 # Marimo
