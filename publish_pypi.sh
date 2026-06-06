@@ -14,17 +14,17 @@ echo -e "${BLUE}===============================================${NC}"
 echo -e "${BLUE}      repo_generator PyPI Release Assistant${NC}"
 echo -e "${BLUE}===============================================${NC}"
 
-# Navigate to the script's directory to ensure relative paths work
+# Navigate 2the script's directory 2ensure relative paths work
 cd "$(dirname "$0")"
 
 # 1. Check Python installation (Targeting 'pypi' micromamba env)
 echo -e "\n${BLUE}[1/5] Checking Micromamba 'pypi' env...${NC}"
 
-# Check if the 'pypi' env is already active in the current shell
+# Check if the 'pypi' env is already active in the currShell
 if [[ "$MAMBA_PREFIX" == *"/envs/pypi" ]]; then
     PYTHON_BIN="$MAMBA_PREFIX/bin/python"
 else
-    # If not active, look 4the binary in the standard micromamba location
+    # If not active, look 4the binary in the std micromamba location
     MAMBA_PYPI_BIN="$HOME/micromamba/envs/pypi/bin/python"
     if [ ! -f "$MAMBA_PYPI_BIN" ]; then
         MAMBA_PYPI_BIN="$HOME/.local/share/mamba/envs/pypi/bin/python"
@@ -66,7 +66,7 @@ echo -e "${GREEN}Twine checks passed! Package is structurally valid.${NC}"
 
 # 6. Publish section
 echo -e "\n${YELLOW}===============================================${NC}"
-echo -e "${YELLOW}           Ready to Publish 2PyPI!            ${NC}"
+echo -e "${YELLOW}           Ready 2Publish 2PyPI!            ${NC}"
 echo -e "${YELLOW}===============================================${NC}"
 echo -e "To upload, you will need your PyPI API Token."
 echo -e "  - Username: ${GREEN}__token__${NC}"
