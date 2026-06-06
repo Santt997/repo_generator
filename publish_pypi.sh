@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a cmd exits w a non-zero status
+# Exit immediately if a cmd exits w a non-0 status
 set -e
 
 # Define colors 4output
