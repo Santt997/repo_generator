@@ -314,13 +314,13 @@ packages = ["{package_name}"]
 pip install {package_name}
 ```
 
-## Running local environment
+## Running local env
 
-Use the provided Makefile to manage the environment:
+Use the provided MkF 2manage the env:
 ```bash
 cd Envs/MkFs
-make create
-make run
+mkc
+mkr
 ```
 '''
     (out_path / 'README.md').write_text(readme_content, encoding='utf-8')
@@ -342,17 +342,17 @@ echo -e "${{BLUE}}===============================================${{NC}}"
 echo -e "${{BLUE}}      {package_name} PyPI Release Assistant${{NC}}"
 echo -e "${{BLUE}}===============================================${{NC}}"
 
-# Navigate to the script's directory to ensure relative paths work
+# Navigate 2the script's directory to ensure relative paths work
 cd "$(dirname "$0")"
 
-# 1. Check Python installation (Targeting 'pypi' micromamba env)
+# 1. Check Python installation (Targeting 'pypi' mm env)
 echo -e "\\n${{BLUE}}[1/5] Checking Micromamba 'pypi' env...${{NC}}"
 
 # Check if the 'pypi' env is already active in the current shell
 if [[ "$MAMBA_PREFIX" == *"/envs/pypi" ]]; then
     PYTHON_BIN="$MAMBA_PREFIX/bin/python"
 else
-    # If not active, look 4the binary in the standard micromamba location
+    # If not active, look 4the binary in the std mm location
     MAMBA_PYPI_BIN="$HOME/micromamba/envs/pypi/bin/python"
     if [ ! -f "$MAMBA_PYPI_BIN" ]; then
         MAMBA_PYPI_BIN="$HOME/.local/share/mamba/envs/pypi/bin/python"
@@ -394,14 +394,14 @@ echo -e "${{GREEN}}Twine checks passed! Package is structurally valid.${{NC}}"
 
 # 6. Publish section
 echo -e "\\n${{YELLOW}}===============================================${{NC}}"
-echo -e "${{YELLOW}}           Ready to Publish to PyPI!            ${{NC}}"
+echo -e "${{YELLOW}}           Ready to Publish 2PyPI!            ${{NC}}"
 echo -e "${{YELLOW}}===============================================${{NC}}"
 echo -e "To upload, you will need your PyPI API Token."
 echo -e "  - Username: ${{GREEN}}__token__${{NC}}"
 echo -e "  - Password: ${{GREEN}}pypi-your-api-token-value${{NC}}"
 echo -e "==============================================="
 
-echo -e "\\nWhere would you like to publish?"
+echo -e "\\nWhere would you like 2publish?"
 echo -e "1) ${{BLUE}}TestPyPI${{NC}} (Safe test upload - requires account at test.pypi.org)"
 echo -e "2) ${{GREEN}}PyPI${{NC}} (Official release - requires account at pypi.org)"
 echo -e "3) ${{YELLOW}}Do not publish${{NC}} (Keep build files local)"
@@ -574,7 +574,7 @@ deep-clean:
         sys.exit(1)
 
     # 4. Create Cloud GitHub Repo
-    print('\n☁️ Creating cloud GitHub repo using 'gh' CLI...')
+    print("\n☁️ Creating cloud GitHub repo using 'gh' CLI...")
     visibility_flag = '--private' if args.private else '--public'
     
     # Detect the authenticated GitHub user
@@ -604,14 +604,14 @@ deep-clean:
                 cwd=out_path,
                 check=True
             )
-            print(f'☁️ Remote repo '{package_name}' successfully created on GitHub.')
+            print(f"☁️ Remote repo '{package_name}' successfully created on GitHub.")
         except Exception as e:
             print(f'Error: GitHub repo creation failed: {e}')
             print("Make sure you are logged in using 'gh auth login' | have internet connection.")
             sys.exit(1)
 
     # Add remote origin manually
-    remote_url = f"https://github.com/{owner}/{package_name}.git"
+    remote_url = f'https://github.com/{owner}/{package_name}.git'
     subprocess.run(['git', 'remote', 'remove', 'origin'], cwd=out_path, capture_output=True)  # remove if exists
     subprocess.run(['git', 'remote', 'add', 'origin', remote_url], cwd=out_path, check=True)
     print(f'☁️ Remote set 2: {remote_url}')
@@ -623,7 +623,7 @@ deep-clean:
     if push_result.returncode == 0:
         print(f"☁️ Cloud GitHub repo '{package_name}' successfully pushed!")
     else:
-        push_stderr = push_result.stderr or ""
+        push_stderr = push_result.stderr or ''
         # Check if it failed because of workflow scope limitation
         if 'workflow' in push_stderr.lower():
             print("\n⚠️ Push rejected due to missing 'workflow' scope on GitHub token.")
@@ -657,7 +657,7 @@ deep-clean:
             print('⚠️  IMPORTANT: GITHUB ACTIONS WORKFLOWS NOT PUSHED')
             print("Your GitHub token does not have the 'workflow' scope.")
             print('All code was pushed successfully, but workflow files remain local only.')
-            print('To push them later, run in your terminal:')
+            print('2push them later, run in your terminal:')
             print('  1. gh auth refresh -s workflow')
             print(f'  2. cd {out_path}')
             print('  3. git add .github/')
@@ -665,7 +665,7 @@ deep-clean:
             print('  5. git push')
             print('='*80 + '\n')
         else:
-            print(f"Error: Git push failed:\n{push_stderr}")
+            print(f'Error: Git push failed:\n{push_stderr}')
             sys.exit(1)
 
     if args.skip_publish:
