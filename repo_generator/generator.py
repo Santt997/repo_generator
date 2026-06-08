@@ -592,7 +592,7 @@ deep-clean:
         check_res = subprocess.run(['gh', 'repo', 'view', f'{owner}/{package_name}'], capture_output=True, cwd=out_path)
         if check_res.returncode == 0:
             repo_exists = True
-            print(f'☁️ Remote repo '{owner}/{package_name}' already exists on GitHub.')
+            print(f"☁️ Remote repo '{owner}/{package_name}' already exists on GitHub.")
     except Exception:
         pass
 
