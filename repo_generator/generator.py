@@ -445,7 +445,7 @@ echo -e "\\n${{BLUE}}Done!${{NC}}"
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   update-env:
@@ -564,8 +564,8 @@ deep-clean:
     print('\n🐙 Initializing Git Repo...')
     try:
         subprocess.run(['git', 'init'], cwd=out_path, check=True)
-        # Configure branch name 2main
-        subprocess.run(['git', 'checkout', '-b', 'main'], cwd=out_path, check=True)
+        # Configure branch name 2master
+        subprocess.run(['git', 'checkout', '-b', 'master'], cwd=out_path, check=True)
         subprocess.run(['git', 'add', '.'], cwd=out_path, check=True)
         subprocess.run(['git', 'commit', '-m', 'Initial commit by repo-generator'], cwd=out_path, check=True)
         print('🐙 Git repo initialized and first commit created.')
@@ -618,7 +618,7 @@ deep-clean:
 
     # Try 2push 2remote
     print('☁️ Pushing local commits 2GitHub...')
-    push_result = subprocess.run(['git', 'push', '-u', 'origin', 'main'], cwd=out_path, capture_output=True, text=True)
+    push_result = subprocess.run(['git', 'push', '-u', 'origin', 'master'], cwd=out_path, capture_output=True, text=True)
 
     if push_result.returncode == 0:
         print(f"☁️ Cloud GitHub repo '{package_name}' successfully pushed!")
@@ -642,7 +642,7 @@ deep-clean:
                 subprocess.run(['git', 'commit', '--amend', '-m', 'Initial commit by repo-generator'], cwd=out_path, check=True)
 
                 # 3. Retry push
-                subprocess.run(['git', 'push', '-u', 'origin', 'main'], cwd=out_path, check=True)
+                subprocess.run(['git', 'push', '-u', 'origin', 'master'], cwd=out_path, check=True)
                 print('☁️ Repo code successfully pushed 2GitHub (!w workflows)!')
             except Exception as retry_err:
                 print(f'Error: Retried push also failed: {retry_err}')
