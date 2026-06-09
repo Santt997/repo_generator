@@ -669,7 +669,7 @@ deep-clean:
             sys.exit(1)
 
     if args.skip_publish:
-        print('\n⚠️ Skipping publishing to PyPI as requested.')
+        print('\n⚠️ Skipping publishing 2PyPI as requested.')
         print('Done!')
         sys.exit(0)
 
