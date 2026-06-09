@@ -48,14 +48,14 @@ else:
     }
 
 
-def parse_dependencies_and_entrypoint(source_dir: Path) -> tuple[set[str], str | None]:
+def parse_dependencies_and_entrypoint(src_dir: Path) -> tuple[set[str], str | None]:
     '''
-    Parses all python files in source_dir using AST to extract external dependencies
+    Parses all python files in src_dir using AST to extract external dependencies
     and find the file containing the __main__ entrypoint block.
     '''
     dependencies : set[str] = set()
     entry_file = None
-    py_files = sorted(source_dir.glob('*.py'))
+    py_files = sorted(src_dir.glob('*.py'))
 
     for py_file in py_files:
         try:
@@ -160,7 +160,7 @@ def main():
         description='Premium Python Automation Tool: Package any Python folder as a std local/cloud GitHub repo & publish to PyPI.'
     )
     parser.add_argument(
-        'source_dir',
+        'src_dir',
         type=str,
         help='Path 2the directory containing the .py files 2package'
     )
@@ -207,13 +207,13 @@ def main():
     args = parser.parse_args()
 
     # Resolve src directory
-    source_path = Path(args.source_dir).resolve()
-    if not source_path.is_dir():
-        print(f'Error: Src directory does not exist: {source_path}')
+    src_path = Path(args.src_dir).resolve()
+    if not src_path.is_dir():
+        print(f'Error: Src directory does not exist: {src_path}')
         sys.exit(1)
 
     # Resolve package name from folder
-    package_name = args.name or source_path.name
+    package_name = args.name or src_path.name
     # Standardize package name: swap spaces w hyphens, lowercase
     package_name : str = package_name.strip().replace(' ', '-').lower()
     
@@ -224,7 +224,7 @@ def main():
     print(f'🚀 Initializing Repo & Package Generation')
     print(f'   - Package Name:  {package_name}')
     print(f'   - Version:       {args.version}')
-    print(f'   - Src Folder: {source_path}')
+    print(f'   - Src Folder: {src_path}')
     print(f'============================================================')
 
     # Resolve output directory
@@ -233,8 +233,8 @@ def main():
     else:
         # Default 2a generated_repos subFolder at the workSpace root
         # Find workSpace root | currDir
-        current_dir = Path.cwd()
-        out_path = current_dir / 'generated_repos' / package_name
+        curr_dir : Path = Path.cwd()
+        out_path = curr_dir / package_name
 
     # Check if output directory already exists
     if out_path.exists():
@@ -246,8 +246,8 @@ def main():
         shutil.rmtree(out_path)
 
     # 1. AST scan 2find external dependencies & entrypoint
-    print('\n🔍 Scanning python files for dependencies & main entry point...')
-    dependencies, entry_file = parse_dependencies_and_entrypoint(source_path)
+    print('\n🔍 Scanning python files 4dependencies & main entry point...')
+    dependencies, entry_file = parse_dependencies_and_entrypoint(src_path)
     print(f"   Detected dependencies: {sorted(list(dependencies)) if dependencies else 'None'}")
     print(f"   Detected entrypoint:   {entry_file or 'None'}")
 
@@ -258,7 +258,7 @@ def main():
 
     # Copy all files from src_dir to the pkg_subfolder
     print(f'\n📂 Copying src python files 2{pkg_subfolder}...')
-    for item in source_path.iterdir():
+    for item in src_path.iterdir():
         # Avoid copying output directory recursively if running on itself
         if item.resolve() == out_path.resolve():
             continue
@@ -271,7 +271,7 @@ def main():
     (pkg_subfolder / '__init__.py').touch(exist_ok=True)
     (pkg_subfolder / 'py.typed').touch(exist_ok=True)
 
-    # 2. Generate CONFIGURATION FILES from templates
+    # 2. Generate CONFIG FILES from templates
     print("\n✨ Generating repository configuration files...")
 
     # A. pyproject.toml
@@ -296,7 +296,7 @@ packages = ["{package_name}"]
     (out_path / 'pyproject.toml').write_text(pyproject_content, encoding='utf-8')
 
     # B. .gitignore
-    # Try 2copy gitignore from current workspace, fallback 2template
+    # Try 2copy gitignore from curr workspace, fallback 2template
     current_gitignore = Path.cwd() / '.gitignore'
     if current_gitignore.is_file():
         shutil.copy2(current_gitignore, out_path / '.gitignore')
@@ -328,7 +328,7 @@ mkr
     # D. publish_pypi.sh
     publish_sh_content = f'''#!/usr/bin/env bash
 
-# Exit immediately if a cmd exits w a non-zero status
+# Exit immediately if a cmd exits w a non-0 status
 set -e
 
 # Define colors 4output
@@ -342,7 +342,7 @@ echo -e "${{BLUE}}===============================================${{NC}}"
 echo -e "${{BLUE}}      {package_name} PyPI Release Assistant${{NC}}"
 echo -e "${{BLUE}}===============================================${{NC}}"
 
-# Navigate 2the script's directory to ensure relative paths work
+# Navigate 2the script's directory 2ensure relative paths work
 cd "$(dirname "$0")"
 
 # 1. Check Python installation (Targeting 'pypi' mm env)
@@ -394,9 +394,9 @@ echo -e "${{GREEN}}Twine checks passed! Package is structurally valid.${{NC}}"
 
 # 6. Publish section
 echo -e "\\n${{YELLOW}}===============================================${{NC}}"
-echo -e "${{YELLOW}}           Ready to Publish 2PyPI!            ${{NC}}"
+echo -e "${{YELLOW}}           Ready 2Publish 2PyPI!            ${{NC}}"
 echo -e "${{YELLOW}}===============================================${{NC}}"
-echo -e "To upload, you will need your PyPI API Token."
+echo -e "2upload, you will need your PyPI API Token."
 echo -e "  - Username: ${{GREEN}}__token__${{NC}}"
 echo -e "  - Password: ${{GREEN}}pypi-your-api-token-value${{NC}}"
 echo -e "==============================================="
@@ -598,7 +598,7 @@ deep-clean:
 
     if not repo_exists:
         try:
-            # Create EMPTY remote repo (no --source, no --push) to avoid auto-push
+            # Create EMPTY remote repo (no --src, no --push) to avoid auto-push
             subprocess.run(
                 ['gh', 'repo', 'create', package_name, visibility_flag],
                 cwd=out_path,
