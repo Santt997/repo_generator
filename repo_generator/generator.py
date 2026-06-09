@@ -157,7 +157,7 @@ venv.bak/
 
 def main():
     parser : argparse.ArgumentParser = argparse.ArgumentParser(
-        description='Premium Python Automation Tool: Package any Python folder as a std local/cloud GitHub repo & publish to PyPI.'
+        description='Premium Python Automation Tool: Package any Python folder as a std local/cloud GitHub repo & publish 2PyPI.'
     )
     parser.add_argument(
         'src_dir',
@@ -231,10 +231,7 @@ def main():
     if args.output:
         out_path = Path(args.output).resolve()
     else:
-        # Default 2a generated_repos subFolder at the workSpace root
-        # Find workSpace root | currDir
-        curr_dir : Path = Path.cwd()
-        out_path = curr_dir / package_name
+        out_path = Path.home() / 'Documentos' / 'GitHub' / package_name
 
     # Check if output directory already exists
     if out_path.exists():
