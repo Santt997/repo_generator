@@ -288,7 +288,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["{package_name}"]
+packages = ["src/{package_name}"]
 '''
     (out_path / 'pyproject.toml').write_text(pyproject_content, encoding='utf-8')
 
