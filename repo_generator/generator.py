@@ -294,9 +294,9 @@ packages = ["{package_name}"]
 
     # B. .gitignore
     # Try 2copy gitignore from curr workspace, fallback 2template
-    current_gitignore = Path.cwd() / '.gitignore'
-    if current_gitignore.is_file():
-        shutil.copy2(current_gitignore, out_path / '.gitignore')
+    curr_gitignore = Path.cwd() / '.gitignore'
+    if curr_gitignore.is_file():
+        shutil.copy2(curr_gitignore, out_path / '.gitignore')
     else:
         (out_path / '.gitignore').write_text(get_fallback_gitignore(), encoding='utf-8')
 
@@ -345,7 +345,7 @@ cd "$(dirname "$0")"
 # 1. Check Python installation (Targeting 'pypi' mm env)
 echo -e "\\n${{BLUE}}[1/5] Checking Micromamba 'pypi' env...${{NC}}"
 
-# Check if the 'pypi' env is already active in the current shell
+# Check if the 'pypi' env is already active in the curr shell
 if [[ "$MAMBA_PREFIX" == *"/envs/pypi" ]]; then
     PYTHON_BIN="$MAMBA_PREFIX/bin/python"
 else
