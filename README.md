@@ -1,6 +1,6 @@
 # repo_generator
 
-cast from repo_generator source 2pypi
+cast from repo_generator src 2pypi
 
 ## Installation
 
@@ -8,9 +8,9 @@ cast from repo_generator source 2pypi
 pip install repo_generator
 ```
 
-## Running local env
+## RunningLocalEnv
 
-Use the provided MakF to manage the env:
+Use the provided MakF 2manage the env:
 ```bash
 cd Envs/MkFs
 make create
