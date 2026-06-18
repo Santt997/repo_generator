@@ -191,12 +191,12 @@ def main():
     parser.add_argument(
         '--dry-run',
         action='store_true',
-        help='Only generate the files locally; skip git init, gh repo create, & publish_pypi.sh'
+        help='Only generate the fs locally; skip git init, gh repo create, & publish_pypi.sh'
     )
     parser.add_argument(
         '--skip-publish',
         action='store_true',
-        help='Generate local files, init Git, & create GitHub repo, but skip running publish_pypi.sh'
+        help='Generate local fs, init Git, & create GitHub repo, but skip running publish_pypi.sh'
     )
     parser.add_argument(
         '--private',
@@ -243,7 +243,7 @@ def main():
         shutil.rmtree(out_path)
 
     # 1. AST scan 2find external dependencies & entrypoint
-    print('\n🔍 Scanning python files 4dependencies & main entry point...')
+    print('\n🔍 Scanning python fs 4dependencies & main entry point...')
     dependencies, entry_file = parse_dependencies_and_entrypoint(src_path)
     print(f"   Detected dependencies: {sorted(list(dependencies)) if dependencies else 'None'}")
     print(f"   Detected entrypoint:   {entry_file or 'None'}")
@@ -253,8 +253,8 @@ def main():
     pkg_subfolder = out_path / package_name
     pkg_subfolder.mkdir(parents=True, exist_ok=True)
 
-    # Copy all files from src_dir to the pkg_subfolder
-    print(f'\n📂 Copying src python files 2{pkg_subfolder}...')
+    # Copy all fs from src_dir to the pkg_subfolder
+    print(f'\n📂 Copying src python fs 2{pkg_subfolder}...')
     for item in src_path.iterdir():
         # Avoid copying output directory recursively if running on itself
         if item.resolve() == out_path.resolve():
@@ -342,10 +342,10 @@ echo -e "${{BLUE}}===============================================${{NC}}"
 # Navigate 2the script's directory 2ensure relative paths work
 cd "$(dirname "$0")"
 
-# 1. Check Python installation (Targeting 'pypi' mm env)
-echo -e "\\n${{BLUE}}[1/5] Checking Micromamba 'pypi' env...${{NC}}"
+# 1. CheckPythonInstallation (Targeting 'pypi' mm env)
+echo -e "\\n${{BLUE}}[1/5] Checking MM 'pypi' env...${{NC}}"
 
-# Check if the 'pypi' env is already active in the curr shell
+# Check if the 'pypi' env is already active in the currShell
 if [[ "$MAMBA_PREFIX" == *"/envs/pypi" ]]; then
     PYTHON_BIN="$MAMBA_PREFIX/bin/python"
 else
@@ -358,7 +358,7 @@ else
     if [ -f "$MAMBA_PYPI_BIN" ]; then
         PYTHON_BIN="$MAMBA_PYPI_BIN"
     else
-        echo -e "${{RED}}Error: The micromamba env 'pypi' does not exist.${{NC}}"
+        echo -e "${{RED}}Error: The MMenv 'pypi' does not exist.${{NC}}"
         echo -e "${{YELLOW}}Please create it first by running:${{NC}}"
         echo -e "  micromamba create -n pypi python=3.11 -y"
         exit 1
@@ -378,24 +378,24 @@ echo -e "\\n${{BLUE}}[3/5] Cleaning old build files...${{NC}}"
 rm -rf dist/ build/ *.egg-info/
 echo -e "Cleaned old build artifacts."
 
-# 4. Build package
+# 4. BuildPackage
 echo -e "\\n${{BLUE}}[4/5] Building package (sdist and wheel)...${{NC}}"
 $PYTHON_BIN -m build
 echo -e "${{GREEN}}Build completed successfully! Here are the generated files:${{NC}}"
 ls -lh dist/
 
-# 5. Check package validity
+# 5. CheckPackageValidity
 echo -e "\\n${{BLUE}}[5/5] Checking package metadata with twine check...${{NC}}"
 $PYTHON_BIN -m twine check dist/*
 echo -e "${{GREEN}}Twine checks passed! Package is structurally valid.${{NC}}"
 
-# 6. Publish section
+# 6. PublishSection
 echo -e "\\n${{YELLOW}}===============================================${{NC}}"
 echo -e "${{YELLOW}}           Ready 2Publish 2PyPI!            ${{NC}}"
 echo -e "${{YELLOW}}===============================================${{NC}}"
 echo -e "2upload, you will need your PyPI API Token."
 echo -e "  - Username: ${{GREEN}}__token__${{NC}}"
-echo -e "  - Password: ${{GREEN}}pypi-your-api-token-value${{NC}}"
+echo -e "  - Password: ${{GREEN}}pypi-your-api-token-val${{NC}}"
 echo -e "==============================================="
 
 echo -e "\\nWhere would you like 2publish?"
@@ -437,7 +437,7 @@ echo -e "\\n${{BLUE}}Done!${{NC}}"
     # E. .github/workflows/update_mamba.yml
     workflow_path = out_path / '.github' / 'workflows'
     workflow_path.mkdir(parents=True, exist_ok=True)
-    workflow_content : str = f'''name: Update Env Micromamba Local
+    workflow_content : str = f'''name: Update Env MM Local
 
 on:
   push:
@@ -550,10 +550,10 @@ deep-clean:
 '''
     (pkg_subfolder / f'{package_name}.code-workspace').write_text(workspace_content, encoding='utf-8')
 
-    print(f'🎉 Successfully generated all template files in: {out_path}')
+    print(f'🎉 Successfully generated all template fs in: {out_path}')
 
     if args.dry_run:
-        print(f'\n⚠️ Dry-run enabled. Skipping Git, GitHub, and PyPI publishing.')
+        print(f'\n⚠️ Dry-run enabled. Skipping Git, GitHub, PyPI publishing.')
         print(f'Done!')
         sys.exit(0)
 
@@ -567,7 +567,7 @@ deep-clean:
         subprocess.run(['git', 'commit', '-m', 'Initial commit by repo-generator'], cwd=out_path, check=True)
         print('🐙 Git repo initialized and first commit created.')
     except Exception as e:
-        print(f'Error: Git repo initialization failed: {e}')
+        print(f'Error: GitRepoInitializationFailed: {e}')
         sys.exit(1)
 
     # 4. Create Cloud GitHub Repo
@@ -601,7 +601,7 @@ deep-clean:
                 cwd=out_path,
                 check=True
             )
-            print(f"☁️ Remote repo '{package_name}' successfully created on GitHub.")
+            print(f"☁️ RemoteRepo '{package_name}' successfullyCreatedOnGitHub.")
         except Exception as e:
             print(f'Error: GitHub repo creation failed: {e}')
             print("Make sure you are logged in using 'gh auth login' | have internet connection.")
