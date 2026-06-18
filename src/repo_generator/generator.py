@@ -679,7 +679,7 @@ deep-clean:
         print(f'Error during package publishing execution: {e}')
         sys.exit(1)
 
-    print('\n💎 Perfect! All operations finished successfully.')
+    print('\n💎 Perfect! AllOperationsFinishedSuccessfully.')
 
 
 if __name__ == '__main__':
