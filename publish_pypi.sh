@@ -17,7 +17,7 @@ echo -e "${BLUE}===============================================${NC}"
 # Navigate 2the script's directory 2ensure relative paths work
 cd "$(dirname "$0")"
 
-# 1. Check Python installation (Targeting 'pypi' MMenv)
+# 1. CheckPythonInstallation (Targeting 'pypi' MMenv)
 echo -e "\n${BLUE}[1/5] Checking Micromamba 'pypi' env...${NC}"
 
 # Check if the 'pypi' env is already active in the currShell
