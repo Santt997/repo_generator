@@ -673,7 +673,7 @@ deep-clean:
     # 5. Execute publish_pypi.sh immediately
     print('\n📦 Launching PyPI Release Assistant...')
     try:
-        # Run bash publish_pypi.sh interactively (sharing stdin/stdout)
+        # RunBash publish_pypi.sh interactively (sharing stdin/stdout)
         subprocess.run(['bash', 'publish_pypi.sh'], cwd=out_path, check=True)
     except Exception as e:
         print(f'Error during packagePublishingExecution: {e}')
