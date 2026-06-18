@@ -9,7 +9,7 @@ import sys
 import subprocess
 from pathlib import Path
 
-# Common imports 2PyPI packages mapping
+# CommonImports 2PyPI packages mapping
 PYPI_MAPPING : dict[str, str] = {
     'PIL': 'Pillow',
     'Image': 'Pillow',
@@ -50,8 +50,8 @@ else:
 
 def parse_dependencies_and_entrypoint(src_dir: Path) -> tuple[set[str], str | None]:
     '''
-    Parses all python files in src_dir using AST to extract external dependencies
-    and find the file containing the __main__ entrypoint block.
+    Parses all python fs in src_dir using AST 2extract external dependencies
+    & find the file containing the __main__ entrypoint block.
     '''
     dependencies : set[str] = set()
     entry_file = None
@@ -77,7 +77,7 @@ def parse_dependencies_and_entrypoint(src_dir: Path) -> tuple[set[str], str | No
                                     # Fallback 4python < 3.8
                                     entry_file = py_file.name
 
-            # Extract imports
+            # ExtractImports
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
                     for alias in node.names:
@@ -92,12 +92,12 @@ def parse_dependencies_and_entrypoint(src_dir: Path) -> tuple[set[str], str | No
         except Exception as e:
             print(f'Warning: Failed 2parse {py_file.name} 4imports/entrypoint: {e}')
 
-    # Map imports to std PyPI distr names
+    # Map imports 2std PyPI distr names
     pypi_deps : set[str] = set()
     for dep in dependencies:
         pypi_deps.add(PYPI_MAPPING.get(dep, dep))
 
-    # If no entry file is found but we have py files, choose the alphabetical first | main.py / _.py if it exists
+    # If no entry file is found but we have .pys, choose the alphabetical first | main.py / _.py if it exists
     if not entry_file and py_files:
         file_names = [f.name for f in py_files]
         if '_.py' in file_names:
@@ -157,7 +157,7 @@ venv.bak/
 
 def main():
     parser : argparse.ArgumentParser = argparse.ArgumentParser(
-        description='Premium Python Automation Tool: Package any Python folder as a std local/cloud GitHub repo & publish 2PyPI.'
+        description='PremiumPythonAutomationTool: Package any Python folder as a std local/cloud GitHub repo & publish 2PyPI.'
     )
     parser.add_argument(
         'src_dir',
@@ -221,10 +221,10 @@ def main():
     description = args.description or f'cast from {package_name} src 2pypi'
 
     print(f'============================================================')
-    print(f'🚀 Initializing Repo & Package Generation')
-    print(f'   - Package Name:  {package_name}')
+    print(f'🚀 InitializingRepo & PackageGeneration')
+    print(f'   - PackageName:  {package_name}')
     print(f'   - Version:       {args.version}')
-    print(f'   - Src Folder: {src_path}')
+    print(f'   - SrcFolder: {src_path}')
     print(f'============================================================')
 
     # Resolve output directory
