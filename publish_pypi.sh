@@ -82,9 +82,9 @@ read -rp "Select [1-3]: " option
 
 case $option in
     1)
-        echo -e "\n${BLUE}Uploading to TestPyPI...${NC}"
+        echo -e "\n${BLUE}Uploading 2TestPyPI...${NC}"
         $PYTHON_BIN -m twine upload --repository testpypi dist/*
-        echo -e "${GREEN}Successfully uploaded to TestPyPI!${NC}"
+        echo -e "${GREEN}Successfully uploaded 2TestPyPI!${NC}"
         echo -e "You can try installing it using:"
         echo -e "  ${YELLOW}pip install --index-url https://pypi.org --extra-index-url https://pypi.org repo_generator${NC}"
         ;;
